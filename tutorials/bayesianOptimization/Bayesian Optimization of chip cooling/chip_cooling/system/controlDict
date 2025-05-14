@@ -1,0 +1,114 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2312                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     simpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         800;
+deltaT          1;
+writeControl    timeStep;
+writeInterval   800;
+purgeWrite      1;
+writeFormat     ascii;
+writePrecision  6;
+writeCompression off;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable true;
+functions{
+	vorticity{
+        type            vorticity;
+        libs            (fieldFunctionObjects);
+        log             true;
+        writeControl    timeStep;
+        writeInterval   800;
+	}
+	vorticity_box{
+        type            volFieldValue;
+        libs            (fieldFunctionObjects);
+        enabled         true;
+		writeControl    timeStep;
+		writeInterval   1;
+		writeFields    	false;
+        log             true;
+        valueOutput     true;
+		regionType      cellZone;
+        name            box;
+        operation    	volAverage;
+        postOperation   mag;
+        fields          (vorticity);
+    }
+	U_box{
+        type            volFieldValue;
+        libs            (fieldFunctionObjects);
+        writeControl    timeStep;
+        writeInterval   1;
+        writeFields    	false;
+        log             true;
+        regionType      cellZone;
+        name            box;
+        operation    	volAverage;
+        postOperation   mag;
+        fields          (U);
+    }
+	k_box{
+        type            volFieldValue;
+        libs            (fieldFunctionObjects);
+        writeControl    timeStep;
+        writeInterval   1;
+        writeFields    	false;
+        log             true;
+        regionType      cellZone;
+        name            box;
+        operation    	volAverage;
+        fields          (k);
+    }
+    k_cooling_channel{
+        type            volFieldValue;
+        libs            (fieldFunctionObjects);
+        writeControl    onEnd;
+        writeFields     false;
+        log             true;
+        operation       volAverage;
+        fields          (k);
+    }
+	pressure_inlet{
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        fields			(p);
+        regionType		patch;
+        name	 		inlet;
+        operation 		areaAverage; 
+        log             true;
+        writeControl    timeStep;
+        writeInterval   1;
+        writeFields    	false;
+    }
+    pressure_outlet{
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        fields			(p);
+        regionType		patch;
+        name	 		outlet;
+        operation 		areaAverage; 
+        log             true;
+        writeControl    timeStep;
+        writeInterval   1;
+        writeFields    	false;
+    }
+}
+// ************************************************************************* //
